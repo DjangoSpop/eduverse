@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Eduverse.Data;
 using Eduverse.UI;
+using Eduverse.Managers;
 
 namespace Eduverse.Core
 {
     /// <summary>
     /// Main game coordinator that manages gameplay flow and integration.
     /// Coordinates between LessonLoader, UI, and backend tracking.
+    /// Integrates with GamificationManager and AnalyticsLogger for Sprint 4 features.
     /// </summary>
     public class GameCoordinator : MonoBehaviour
     {
@@ -16,9 +18,14 @@ namespace Eduverse.Core
         [SerializeField] private GamificationUI gamificationUI;
         [SerializeField] private ChallengeUI challengeUI;
 
+        [Header("Sprint 4 Integration")]
+        [SerializeField] private bool useGamificationManager = true;
+        [SerializeField] private bool useAnalyticsLogger = true;
+
         // Current lesson data
         private SceneSpecification currentLesson;
         private string currentSessionId;
+        private string currentLearnerId;
         private int currentSceneIndex = 0;
 
         // Session tracking
@@ -26,6 +33,11 @@ namespace Eduverse.Core
         private int challengesAttempted = 0;
         private int challengesCompleted = 0;
         private List<string> collectiblesCollected = new List<string>();
+        private System.DateTime sessionStartTime;
+
+        // Sprint 4 component references
+        private GamificationManager gamificationManager;
+        private AnalyticsLogger analyticsLogger;
 
         private void Awake()
         {
@@ -35,6 +47,13 @@ namespace Eduverse.Core
 
             if (challengeUI == null)
                 challengeUI = FindObjectOfType<ChallengeUI>();
+
+            // Sprint 4: Get references to new managers
+            if (useGamificationManager)
+                gamificationManager = GamificationManager.Instance;
+
+            if (useAnalyticsLogger)
+                analyticsLogger = AnalyticsLogger.Instance;
         }
 
         #region Lesson Management
@@ -42,16 +61,27 @@ namespace Eduverse.Core
         /// <summary>
         /// Called by LessonLoader when lesson is loaded.
         /// </summary>
-        public void OnLessonLoaded(SceneSpecification lesson, string sessionId)
+        public void OnLessonLoaded(SceneSpecification lesson, string sessionId, string learnerId = "")
         {
             currentLesson = lesson;
             currentSessionId = sessionId;
+            currentLearnerId = learnerId;
             currentSceneIndex = 0;
+            sessionStartTime = System.DateTime.UtcNow;
 
             Debug.Log($"[GameCoordinator] Lesson loaded: {lesson.title}");
             Debug.Log($"[GameCoordinator] Session ID: {sessionId}");
             Debug.Log($"[GameCoordinator] Scenes: {lesson.scenes.Count}");
             Debug.Log($"[GameCoordinator] Learning Objectives: {lesson.learning_objectives.Count}");
+
+            // Sprint 4: Log session start to analytics
+            if (analyticsLogger != null)
+            {
+                analyticsLogger.LogSessionStart(sessionId, learnerId, lesson.lesson_id);
+                analyticsLogger.SetUserId(learnerId);
+                analyticsLogger.SetUserProperty("current_lesson", lesson.lesson_id);
+                analyticsLogger.SetUserProperty("lesson_theme", lesson.theme);
+            }
 
             // Log lesson start event
             LogEvent("lesson_started", new Dictionary<string, object>
@@ -127,6 +157,25 @@ namespace Eduverse.Core
                 // Award XP
                 AwardXP(challenge.xp_reward, "Challenge completed");
 
+                // Sprint 4: Increase curiosity on success
+                if (gamificationManager != null)
+                {
+                    gamificationManager.OnSuccessfulChallenge();
+                    gamificationManager.OnQuizSuccess();
+
+                    // Check for perfect challenge (100% accuracy)
+                    if (challengesCompleted == challengesAttempted)
+                    {
+                        gamificationManager.OnPerfectChallenge();
+                    }
+                }
+
+                // Sprint 4: Log to analytics
+                if (analyticsLogger != null)
+                {
+                    analyticsLogger.LogChallengeCompleted(challenge.id, true, 1, 0f, challenge.xp_reward);
+                }
+
                 // Log event
                 LogEvent("challenge_completed", new Dictionary<string, object>
                 {
@@ -138,6 +187,14 @@ namespace Eduverse.Core
             }
             else
             {
+                // Sprint 4: Log to analytics
+                if (analyticsLogger != null)
+                {
+                    var currentScene = currentLesson.scenes[currentSceneIndex];
+                    var challenge = currentScene.challenges[0];
+                    analyticsLogger.LogChallengeCompleted(challenge.id, false, 1, 0f, 0);
+                }
+
                 // Log failed attempt
                 LogEvent("challenge_failed", new Dictionary<string, object>
                 {
@@ -162,6 +219,19 @@ namespace Eduverse.Core
 
             // Award XP
             AwardXP(collectible.xp_reward, $"Collected {collectible.name}");
+
+            // Sprint 4: Track collectible in gamification system
+            if (gamificationManager != null)
+            {
+                gamificationManager.OnCollectibleCollected();
+                gamificationManager.OnInteraction(); // Also increase curiosity
+            }
+
+            // Sprint 4: Log to analytics
+            if (analyticsLogger != null)
+            {
+                analyticsLogger.LogCollectibleCollected(collectible.id, collectible.type, collectible.xp_reward);
+            }
 
             // Log event
             LogEvent("collectible_collected", new Dictionary<string, object>
@@ -208,12 +278,39 @@ namespace Eduverse.Core
         {
             totalXPEarned += amount;
 
-            if (gamificationUI != null)
+            // Sprint 4: Award XP through GamificationManager
+            if (gamificationManager != null)
+            {
+                gamificationManager.AwardXP(amount, reason);
+            }
+            // Fallback to old UI system if GamificationManager not available
+            else if (gamificationUI != null)
             {
                 gamificationUI.AddXP(amount, reason);
             }
 
             Debug.Log($"[GameCoordinator] +{amount} XP ({reason}). Total: {totalXPEarned}");
+        }
+
+        /// <summary>
+        /// Called when an NPC is interacted with.
+        /// </summary>
+        public void OnNPCInteraction(string npcId, string npcName, string dialogueId)
+        {
+            // Sprint 4: Track NPC interaction
+            if (gamificationManager != null)
+            {
+                gamificationManager.OnNPCInteraction(npcId);
+                gamificationManager.OnInteraction(); // Increase curiosity
+            }
+
+            // Sprint 4: Log to analytics
+            if (analyticsLogger != null)
+            {
+                analyticsLogger.LogNPCInteraction(npcId, npcName, dialogueId);
+            }
+
+            Debug.Log($"[GameCoordinator] NPC interaction: {npcName}");
         }
 
         #endregion
@@ -257,6 +354,12 @@ namespace Eduverse.Core
 
             // Calculate completion percentage
             float completionPercentage = 1.0f;
+
+            // Sprint 4: Log session end to analytics
+            if (analyticsLogger != null)
+            {
+                analyticsLogger.LogSessionEnd(currentSessionId, completionPercentage, totalXPEarned, challengesCompleted);
+            }
 
             // End session
             if (!string.IsNullOrEmpty(currentSessionId))

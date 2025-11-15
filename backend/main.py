@@ -15,7 +15,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
-from app.api.endpoints import curriculum, lessons, sessions, learners, multilingual
+from app.api.endpoints import curriculum, lessons, sessions, learners, multilingual, streaming
 from app.storage import memory_store
 
 
@@ -112,6 +112,7 @@ app.include_router(lessons.router, prefix="/api")
 app.include_router(sessions.router, prefix="/api")
 app.include_router(learners.router, prefix="/api")
 app.include_router(multilingual.router, prefix="/api")  # Sprint 5: Multilingual support
+app.include_router(streaming.router, prefix="/api")  # Sprint 5: Real-time streaming
 
 
 # Root endpoints
@@ -138,13 +139,17 @@ async def root():
             "lessons": "/api/lessons",
             "sessions": "/api/sessions",
             "learners": "/api/learners",
-            "multilingual": "/api/multilingual"
+            "multilingual": "/api/multilingual",
+            "streaming": "/api/streaming"
         },
         "features": {
             "multilingual_support": True,
             "supported_languages": ["ar", "en", "fr", "es", "zh", "he", "ur"],
             "rtl_support": True,
-            "cultural_adaptation": True
+            "cultural_adaptation": True,
+            "realtime_streaming": True,
+            "dynamic_content_generation": True,
+            "behavior_based_adaptation": True
         }
     }
 

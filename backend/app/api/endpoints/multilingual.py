@@ -21,8 +21,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/multilingual", tags=["multilingual"])
 
 # In-memory stores (same pattern as existing endpoints)
-from app.api.endpoints.curriculum import curriculum_store
-from app.api.endpoints.lessons import scene_spec_store
+from app.storage import memory_store
+
+# Create references for easier access
+curriculum_store = memory_store.curriculum_store
+lesson_store = memory_store.lesson_store
 
 
 @router.get("/languages")

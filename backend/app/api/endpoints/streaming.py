@@ -10,8 +10,11 @@ import logging
 import json
 
 from app.services.streaming_engine import streaming_engine
-from app.api.endpoints.lessons import scene_spec_store
-from app.api.endpoints.learners import learner_profiles
+from app.storage import memory_store
+
+# Create references for easier access
+lesson_store = memory_store.lesson_store
+learner_profiles = memory_store.learner_store
 
 logger = logging.getLogger(__name__)
 
@@ -106,8 +109,8 @@ async def mechanics_stream(websocket: WebSocket):
             'learning_objectives': []
         }
 
-        if lesson_id and lesson_id in scene_spec_store:
-            lesson = scene_spec_store[lesson_id]
+        if lesson_id and lesson_id in lesson_store:
+            lesson = lesson_store[lesson_id]
             lesson_context.update({
                 'topic': lesson.get('title', 'learning'),
                 'theme': lesson.get('theme', 'ocean'),

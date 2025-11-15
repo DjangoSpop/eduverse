@@ -3,7 +3,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
+// using Newtonsoft.Json;  // Commented out - using Unity's JsonUtility instead
 using Eduverse.Data;
 
 namespace Eduverse.Core
@@ -74,7 +74,7 @@ namespace Eduverse.Core
                         if (logRequests)
                             Debug.Log($"[API] Response: {json.Substring(0, Mathf.Min(200, json.Length))}...");
 
-                        T data = JsonConvert.DeserializeObject<T>(json);
+                        T data = JsonUtility.FromJson<T>(json);
                         onSuccess?.Invoke(data);
                     }
                     catch (Exception e)
@@ -106,7 +106,7 @@ namespace Eduverse.Core
             Action<string> onError)
         {
             string url = $"{baseURL}{endpoint}";
-            string json = JsonConvert.SerializeObject(data);
+            string json = JsonUtility.ToJson(data);
 
             if (logRequests)
                 Debug.Log($"[API] POST {url}\nBody: {json}");
@@ -131,7 +131,7 @@ namespace Eduverse.Core
                         if (logRequests)
                             Debug.Log($"[API] Response: {responseJson}");
 
-                        TResponse response = JsonConvert.DeserializeObject<TResponse>(responseJson);
+                        TResponse response = JsonUtility.FromJson<TResponse>(responseJson);
                         onSuccess?.Invoke(response);
                     }
                     catch (Exception e)
@@ -159,7 +159,7 @@ namespace Eduverse.Core
             Action<string> onError)
         {
             string url = $"{baseURL}{endpoint}";
-            string json = JsonConvert.SerializeObject(data);
+            string json = JsonUtility.ToJson(data);
 
             if (logRequests)
                 Debug.Log($"[API] POST {url}\nBody: {json}");

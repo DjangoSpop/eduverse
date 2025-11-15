@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using System.Collections.Generic;
-using DG.Tweening;
+// using DG.Tweening;  // Commented out - install DOTween for animations
 
 namespace Eduverse.Managers
 {
@@ -225,9 +225,9 @@ namespace Eduverse.Managers
             }
             else
             {
-                // Fallback: Basic popup animation
-                popup.transform.localScale = Vector3.zero;
-                popup.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBounce);
+                // Fallback: Simple popup (no animation without DOTween)
+                popup.transform.localScale = Vector3.one;
+                // popup.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBounce);  // Requires DOTween
 
                 // Auto-destroy after 4 seconds
                 Destroy(popup, 4f);
@@ -337,14 +337,14 @@ namespace Eduverse.Managers
                 popupText.text = $"+{amount} XP";
             }
 
-            // Animate popup
-            RectTransform rectTransform = popup.GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                Vector3 startPos = rectTransform.anchoredPosition;
-                rectTransform.DOAnchorPos(startPos + new Vector3(0, 100, 0), 1f).SetEase(Ease.OutQuad);
-                popup.GetComponent<CanvasGroup>()?.DOFade(0f, 1f).SetDelay(0.5f);
-            }
+            // Animate popup (disabled without DOTween)
+            // RectTransform rectTransform = popup.GetComponent<RectTransform>();
+            // if (rectTransform != null)
+            // {
+            //     Vector3 startPos = rectTransform.anchoredPosition;
+            //     rectTransform.DOAnchorPos(startPos + new Vector3(0, 100, 0), 1f).SetEase(Ease.OutQuad);
+            //     popup.GetComponent<CanvasGroup>()?.DOFade(0f, 1f).SetDelay(0.5f);
+            // }
 
             Destroy(popup, 1.5f);
         }
@@ -356,15 +356,18 @@ namespace Eduverse.Managers
         {
             if (levelText != null)
             {
-                levelText.transform.DOScale(1.3f, 0.3f).SetEase(Ease.OutBounce).OnComplete(() =>
-                {
-                    levelText.transform.DOScale(1f, 0.3f);
-                });
+                // Level up animation disabled - enable when DOTween is installed
+                // levelText.transform.DOScale(1.3f, 0.3f).SetEase(Ease.OutBounce).OnComplete(() =>
+                // {
+                //     levelText.transform.DOScale(1f, 0.3f);
+                // });
+                //
+                // levelText.DOColor(Color.yellow, 0.3f).OnComplete(() =>
+                // {
+                //     levelText.DOColor(Color.white, 0.3f);
+                // });
 
-                levelText.DOColor(Color.yellow, 0.3f).OnComplete(() =>
-                {
-                    levelText.DOColor(Color.white, 0.3f);
-                });
+                Debug.Log("[GamificationManager] Level up effect (animations disabled)");
             }
         }
 
@@ -439,14 +442,14 @@ namespace Eduverse.Managers
                 // Fire event
                 OnCuriosityChanged?.Invoke(curiosityValue);
 
-                // Animate bar fill
-                if (curiosityBarFill != null)
-                {
-                    curiosityBarFill.transform.DOScale(1.1f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
-                    {
-                        curiosityBarFill.transform.DOScale(1f, 0.2f);
-                    });
-                }
+                // Animate bar fill (disabled without DOTween)
+                // if (curiosityBarFill != null)
+                // {
+                //     curiosityBarFill.transform.DOScale(1.1f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() =>
+                //     {
+                //         curiosityBarFill.transform.DOScale(1f, 0.2f);
+                //     });
+                // }
 
                 Debug.Log($"[GamificationManager] Curiosity increased to {curiosityValue:F2}");
             }

@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using Eduverse.Data;
 
 namespace Eduverse.Core
@@ -19,7 +17,8 @@ namespace Eduverse.Core
 
         [Header("References")]
         [SerializeField] private Transform worldRoot;
-        [SerializeField] private LoadingScreen loadingScreen;
+        // LoadingScreen is optional - will be found if it exists
+        private GameObject loadingScreenObj;
 
         [Header("Prefab Library")]
         [SerializeField] private PrefabLibrary prefabLibrary;
@@ -52,8 +51,9 @@ namespace Eduverse.Core
         /// </summary>
         private IEnumerator LoadLessonSequence()
         {
-            if (loadingScreen != null)
-                loadingScreen.Show();
+            // Loading screen disabled - enable when DOTween is installed
+            // if (loadingScreenObj != null)
+            //     loadingScreenObj.SetActive(true);
 
             // Stage 1: Fetch lesson from backend
             UpdateLoadingStage("Connecting to server...", 0.1f);
@@ -117,8 +117,9 @@ namespace Eduverse.Core
             UpdateLoadingStage("Ready to play!", 1.0f);
             yield return new WaitForSeconds(0.5f);
 
-            if (loadingScreen != null)
-                loadingScreen.Hide();
+            // Loading screen disabled
+            // if (loadingScreenObj != null)
+            //     loadingScreenObj.SetActive(false);
 
             // Start gameplay
             StartGameplay();
@@ -321,21 +322,23 @@ namespace Eduverse.Core
 
         private void UpdateLoadingStage(string message, float progress)
         {
-            if (loadingScreen != null)
-            {
-                loadingScreen.UpdateProgress(message, progress);
-            }
-            Debug.Log($"[Loading] {message} ({progress:P0})");
+            // Loading screen disabled
+            // if (loadingScreenObj != null)
+            // {
+            //     // Update progress UI here
+            // }
+            Debug.Log($"[Loading] {message} ({progress * 100:F0}%)");
         }
 
         private void ShowError(string message)
         {
             Debug.LogError($"[LessonLoader] ERROR: {message}");
 
-            if (loadingScreen != null)
-            {
-                loadingScreen.ShowError(message);
-            }
+            // Loading screen disabled
+            // if (loadingScreenObj != null)
+            // {
+            //     // Show error UI
+            // }
         }
 
         #endregion

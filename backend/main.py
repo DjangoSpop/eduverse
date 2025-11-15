@@ -15,7 +15,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
-from app.api.endpoints import curriculum, lessons, sessions, learners
+from app.api.endpoints import curriculum, lessons, sessions, learners, multilingual
 from app.storage import memory_store
 
 
@@ -111,6 +111,7 @@ app.include_router(curriculum.router, prefix="/api")
 app.include_router(lessons.router, prefix="/api")
 app.include_router(sessions.router, prefix="/api")
 app.include_router(learners.router, prefix="/api")
+app.include_router(multilingual.router, prefix="/api")  # Sprint 5: Multilingual support
 
 
 # Root endpoints
@@ -136,7 +137,14 @@ async def root():
             "curriculum": "/api/curriculum",
             "lessons": "/api/lessons",
             "sessions": "/api/sessions",
-            "learners": "/api/learners"
+            "learners": "/api/learners",
+            "multilingual": "/api/multilingual"
+        },
+        "features": {
+            "multilingual_support": True,
+            "supported_languages": ["ar", "en", "fr", "es", "zh", "he", "ur"],
+            "rtl_support": True,
+            "cultural_adaptation": True
         }
     }
 

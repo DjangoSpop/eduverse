@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Unity
+unity/EduverseClient/Library/
+unity/EduverseClient/Temp/
+unity/EduverseClient/Obj/
+unity/EduverseClient/Build/
+unity/EduverseClient/Builds/
+unity/EduverseClient/Logs/
+unity/EduverseClient/MemoryCaptures/
+unity/EduverseClient/UserSettings/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity crashes and backups
+[Aa]ssets/AssetStoreTools*
+ExportedObj/
+.consulo/
+*.unitypackage
+*.app
+*.apk
+*.symbols.zip
+
+# Documentation
+docs/_build/

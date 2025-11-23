@@ -15,7 +15,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
-from app.api.endpoints import curriculum, lessons, sessions, learners, multilingual, streaming
+from app.api.endpoints import curriculum, lessons, sessions, learners, multilingual, streaming, infographic
 from app.storage import memory_store
 
 
@@ -113,6 +113,7 @@ app.include_router(sessions.router, prefix="/api")
 app.include_router(learners.router, prefix="/api")
 app.include_router(multilingual.router, prefix="/api")  # Sprint 5: Multilingual support
 app.include_router(streaming.router, prefix="/api")  # Sprint 5: Real-time streaming
+app.include_router(infographic.router, prefix="/api")  # Sprint 5 Phase 3: Infographic pipeline
 
 
 # Root endpoints
@@ -140,7 +141,8 @@ async def root():
             "sessions": "/api/sessions",
             "learners": "/api/learners",
             "multilingual": "/api/multilingual",
-            "streaming": "/api/streaming"
+            "streaming": "/api/streaming",
+            "infographic": "/api/infographic"
         },
         "features": {
             "multilingual_support": True,
@@ -149,7 +151,12 @@ async def root():
             "cultural_adaptation": True,
             "realtime_streaming": True,
             "dynamic_content_generation": True,
-            "behavior_based_adaptation": True
+            "behavior_based_adaptation": True,
+            "infographic_pipeline": True,
+            "deepseek_ocr": True,
+            "gemini_infographics": True,
+            "animation_engine": True,
+            "parallel_processing": True
         }
     }
 
